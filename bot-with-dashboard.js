@@ -1,14 +1,10 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
 require('dotenv').config();
 
-// Express server
 const app = express();
 app.use(express.json());
 
-// Discord bot
 const client = new Client({
     intents: [
         GatewayIntentBits.DirectMessages,
@@ -17,7 +13,6 @@ const client = new Client({
     ]
 });
 
-// Store config in memory
 let config = {
     autoReply: process.env.AUTO_REPLY || 'Hey! Welcome to Muscle Legends Boost Services!',
     keywords: (process.env.KEYWORDS || 'boost,service,rebirths,help').split(',').map(k => k.trim()),
@@ -26,9 +21,7 @@ let config = {
     status: process.env.BOT_STATUS || 'active'
 };
 
-// Dashboard HTML
-const dashboardHTML = `
-<!DOCTYPE html>
+const dashboardHTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -36,7 +29,6 @@ const dashboardHTML = `
     <title>💪 Muscle Legends Bot Dashboard</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
             background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -44,7 +36,6 @@ const dashboardHTML = `
             padding: 20px;
             min-height: 100vh;
         }
-        
         .container {
             max-width: 1000px;
             margin: 0 auto;
@@ -54,44 +45,37 @@ const dashboardHTML = `
             padding: 40px;
             box-shadow: 0 0 40px rgba(255, 107, 53, 0.4);
         }
-        
         header {
             text-align: center;
             margin-bottom: 40px;
             border-bottom: 3px solid #ff6b35;
             padding-bottom: 25px;
         }
-        
         h1 {
             color: #ff6b35;
             font-size: 3em;
             margin-bottom: 8px;
             text-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
         }
-        
         .subtitle {
             color: #aaa;
             font-size: 1.1em;
             letter-spacing: 1px;
         }
-        
         .form-group {
             margin-bottom: 25px;
         }
-        
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
             margin-bottom: 25px;
         }
-        
         @media (max-width: 768px) {
             .form-row {
                 grid-template-columns: 1fr;
             }
         }
-        
         label {
             display: block;
             margin-bottom: 10px;
@@ -101,7 +85,6 @@ const dashboardHTML = `
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        
         input, textarea, select {
             width: 100%;
             padding: 14px 16px;
@@ -113,39 +96,33 @@ const dashboardHTML = `
             font-family: inherit;
             transition: all 0.3s ease;
         }
-        
         input:focus, textarea:focus, select:focus {
             outline: none;
             box-shadow: 0 0 15px rgba(255, 107, 53, 0.6);
             background: #2a2a2a;
         }
-        
         textarea {
             resize: vertical;
             min-height: 150px;
             font-family: 'Courier New', monospace;
             line-height: 1.5;
         }
-        
         .info-text {
             font-size: 0.85em;
             color: #888;
             margin-top: 8px;
             font-style: italic;
         }
-        
         .button-group {
             display: flex;
             gap: 15px;
             margin-top: 30px;
         }
-        
         @media (max-width: 768px) {
             .button-group {
                 flex-direction: column;
             }
         }
-        
         button {
             flex: 1;
             padding: 16px 30px;
@@ -158,21 +135,14 @@ const dashboardHTML = `
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-        
         .btn-save {
             background: linear-gradient(135deg, #ff6b35 0%, #ff8555 100%);
             color: #000;
         }
-        
         .btn-save:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(255, 107, 53, 0.4);
         }
-        
-        .btn-save:active {
-            transform: translateY(0);
-        }
-        
         .status-message {
             padding: 18px 20px;
             border-radius: 8px;
@@ -183,32 +153,22 @@ const dashboardHTML = `
             display: none;
             animation: slideIn 0.3s ease;
         }
-        
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        
         .status-message.success {
             background: linear-gradient(135deg, #2d5016 0%, #3d6b1f 100%);
             border: 2px solid #4caf50;
             color: #4caf50;
             display: block;
         }
-        
         .status-message.error {
             background: linear-gradient(135deg, #5a1a1a 0%, #8b2e2e 100%);
             border: 2px solid #f44336;
             color: #ff6b9d;
             display: block;
         }
-        
         .section-title {
             color: #ff6b35;
             font-size: 1.3em;
@@ -278,7 +238,6 @@ const dashboardHTML = `
         const form = document.getElementById('botForm');
         const statusMsg = document.getElementById('statusMessage');
 
-        // Load settings
         async function loadSettings() {
             try {
                 const response = await fetch(API);
@@ -296,7 +255,7 @@ const dashboardHTML = `
 
         function showStatus(message, type) {
             statusMsg.textContent = message;
-            statusMsg.className = \`status-message \${type}\`;
+            statusMsg.className = 'status-message ' + type;
             if (type === 'success') {
                 setTimeout(() => {
                     statusMsg.style.display = 'none';
@@ -336,20 +295,16 @@ const dashboardHTML = `
         loadSettings();
     </script>
 </body>
-</html>
-`;
+</html>`;
 
-// Serve dashboard
 app.get('/', (req, res) => {
     res.send(dashboardHTML);
 });
 
-// Get current config
 app.get('/api/config', (req, res) => {
     res.json(config);
 });
 
-// Update config
 app.post('/api/config', (req, res) => {
     const { status, channelId, mentionUser, keywords, autoReply } = req.body;
 
@@ -362,10 +317,9 @@ app.post('/api/config', (req, res) => {
     res.json({ success: true, message: 'Config updated' });
 });
 
-// Discord bot events
 client.on('ready', () => {
-    console.log(`✅ Bot ready as ${client.user.tag}`);
-    client.user.setActivity('Muscle Legends 💪', { type: 'WATCHING' });
+    console.log('Bot ready');
+    client.user.setActivity('Muscle Legends', { type: 'WATCHING' });
 });
 
 client.on('messageCreate', async (message) => {
@@ -378,21 +332,20 @@ client.on('messageCreate', async (message) => {
     if (hasKeyword) {
         try {
             await message.reply(config.autoReply);
-            console.log(`✅ Reply sent to ${message.author.tag}`);
+            console.log('Reply sent');
 
             const channel = await client.channels.fetch(config.channelId);
-            const forwarded = \`\${config.mentionUser}\n\n**From:** \${message.author.username}\n**Message:** \${message.content}\`;
+            const forwarded = config.mentionUser + '\n\n**From:** ' + message.author.username + '\n**Message:** ' + message.content;
             await channel.send(forwarded);
-            console.log(`📤 Forwarded to channel\`);
+            console.log('Forwarded');
         } catch (err) {
             console.error('Error:', err.message);
         }
     }
 });
 
-// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🌐 Dashboard running on port ${PORT}`);
+    console.log('Dashboard running on port ' + PORT);
     client.login(process.env.DISCORD_TOKEN);
 });
